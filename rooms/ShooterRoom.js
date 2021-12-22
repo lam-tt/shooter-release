@@ -24,25 +24,48 @@ class ShooterRoom extends colyseus_1.Room {
             switch (type) {
                 // shooter state
                 case 'ship-status':
-                    this.status = message.data;
+                    {
+                        this.status = message.data;
+                    }
                     break;
                 case 'query-ships':
-                    const status = this.status; // available ship_id from backend
-                    client.send(type, {
-                        type,
-                        time: Date.now(),
-                        data: status
-                    });
+                    {
+                        const status = this.status; // available ship_id from backend
+                        client.send(type, {
+                            type,
+                            time: Date.now(),
+                            data: status
+                        });
+                    }
                     break;
                 case 'ship-selected':
-                    this.state.initPlayer(playerId, message.data);
-                    this.state.startExplore();
+                    {
+                        this.state.initPlayer(playerId, message.data);
+                        this.state.startExplore();
+                    }
+                    break;
+                case 'game-pause':
+                    {
+                        console.log('game-paused -> TBU');
+                    }
+                    break;
+                case 'game-end':
+                    {
+                        this.state.endExplore();
+                    }
+                    break;
+                case 'game-restart':
+                    {
+                        this.state.selectShip();
+                    }
                     break;
                 // player action
                 case 'move':
                 case 'fire':
                 case 'rotate':
-                    this.state.pushPlayerAction(Object.assign({ playerId }, message));
+                    {
+                        this.state.pushPlayerAction(Object.assign({ playerId }, message));
+                    }
                     break;
             }
         });
@@ -55,7 +78,6 @@ class ShooterRoom extends colyseus_1.Room {
     }
     onDispose() {
         console.log("room", this.roomId, "disposing...");
-        this.state.onDispose();
     }
     onUpdate() {
         this.state.update();

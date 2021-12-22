@@ -24,6 +24,9 @@ class Shooter extends schema_1.Schema {
         this.items = new schema_1.ArraySchema();
         this.playerActions = [];
         this.view = {};
+        this.selectShip = () => {
+            this.state = utils_1.Types.GameState.Select;
+        };
         // enemy 
         this.addEnemy = () => {
             let pos = utils_1.Utils.randomPosition();
@@ -35,7 +38,8 @@ class Shooter extends schema_1.Schema {
         };
         this.updateEnemy = (id) => {
             const enemy = this.enemies.get(id);
-            if (!enemy.isAlive) {
+            if (!enemy.isAlive
+                || this.playerDistanceTo(enemy) > utils_1.Constants.MAP_RADIUS) {
                 this.enemies.delete(id);
                 return;
             }
@@ -47,9 +51,7 @@ class Shooter extends schema_1.Schema {
                 this.onSend({
                     type: 'fire',
                     time,
-                    data: {
-                        id
-                    }
+                    data: { id }
                 });
                 enemy.fire(bullet, time);
             }
@@ -75,17 +77,9 @@ class Shooter extends schema_1.Schema {
         this.view = view;
         this.onSend = onSend;
         this.state = utils_1.Types.GameState.Intro;
-        setTimeout(() => {
-            this.state = utils_1.Types.GameState.Select;
-        }, 3000);
+        setTimeout(this.selectShip, 3000);
     }
     get player() { return this.players[0]; }
-    onDispose() {
-        this.players.clear();
-        this.enemies.clear();
-        this.meteors.clear();
-        this.bullets.clear();
-    }
     updateExplore() {
         // player actions
         this.updatePlayer();
@@ -112,8 +106,17 @@ class Shooter extends schema_1.Schema {
     // shooter state
     startExplore() {
         this.state = utils_1.Types.GameState.Explore;
-        this.score = 0;
-        this.totalScore = 0; // get from backend
+        this.score = 0; // get from backend
+        this.level = 1;
+    }
+    endExplore() {
+        // change state
+        this.state = utils_1.Types.GameState.End;
+        // clear all
+        this.players.clear();
+        this.enemies.clear();
+        this.meteors.clear();
+        this.bullets.clear();
     }
     update() {
         switch (this.state) {
@@ -212,7 +215,7 @@ class Shooter extends schema_1.Schema {
                 else if (hit.id === this.player.id) { // shot from enemy -> check only if hit player
                     this.player.applyDamage(bullet.power);
                     if (!this.player.isAlive) {
-                        // game END
+                        this.endExplore();
                     }
                 }
             });
@@ -304,7 +307,4 @@ __decorate([
 __decorate([
     schema_1.type('number')
 ], Shooter.prototype, "score", void 0);
-__decorate([
-    schema_1.type('number')
-], Shooter.prototype, "totalScore", void 0);
 exports.Shooter = Shooter;

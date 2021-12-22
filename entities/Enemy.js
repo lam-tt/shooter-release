@@ -56,10 +56,7 @@ class Enemy extends _1.Entity {
             this.startIdle();
             return;
         }
-        if (this.targetDir.mag() > utils_1.Constants.MAP_RADIUS) { // travel too far -> move back to player
-            this.moveDir = utils_1.Vec2.from(this.targetDir).normalize();
-        }
-        else if (Math.random() < 0.08) { // 8% change direction of movement
+        if (Math.random() < 0.08) { // 8% change direction of movement
             const angle = this.angle + (Math.random() * 60 - 30);
             this.moveDir = utils_1.Vec2.fromAngle(angle);
         }

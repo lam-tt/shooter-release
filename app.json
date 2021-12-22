@@ -1,0 +1,12 @@
+{
+  "name": "Shooter",
+  "description": "Node.js server",
+  "repository": "https://github.com/lam-tt/shooter-release",
+  "keywords": ["node", "multiplayer", "colyseus"],
+  "env": {
+    "NPM_CONFIG_PRODUCTION": {
+      "description": "Leave as 'false' to install required devDependencies.",
+      "value": "true"
+    }
+  }
+}

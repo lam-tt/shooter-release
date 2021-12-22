@@ -51,11 +51,13 @@ class ShooterRoom extends colyseus_1.Room {
                     break;
                 case 'game-end':
                     {
+                        console.log('game-end');
                         this.state.endExplore();
                     }
                     break;
                 case 'game-restart':
                     {
+                        console.log('game-restart');
                         this.state.selectShip();
                     }
                     break;

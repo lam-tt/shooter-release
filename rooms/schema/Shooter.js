@@ -113,10 +113,12 @@ class Shooter extends schema_1.Schema {
         // change state
         this.state = utils_1.Types.GameState.End;
         // clear all
-        this.players.clear();
-        this.enemies.clear();
-        this.meteors.clear();
-        this.bullets.clear();
+        console.log('clear all');
+        this.players.splice(0);
+        this.bullets.splice(0);
+        this.items.splice(0);
+        Array.from(this.enemies.keys()).forEach(id => this.enemies.delete(id));
+        Array.from(this.meteors.keys()).forEach(id => this.meteors.delete(id));
     }
     update() {
         switch (this.state) {

@@ -43,6 +43,8 @@ class Shooter extends schema_1.Schema {
                 this.enemies.delete(id);
                 return;
             }
+            if (!enemy.active)
+                return; // out of camera view -> disable
             enemy.update();
             // if fire
             if (enemy.shouldFire) {
@@ -71,6 +73,8 @@ class Shooter extends schema_1.Schema {
                 this.meteors.delete(id);
                 return;
             }
+            if (!meteor.active)
+                return; // out of camera view -> disable
             meteor.update();
         };
         this.roomName = name;
@@ -180,28 +184,41 @@ class Shooter extends schema_1.Schema {
                     this.items.splice(index, 1);
             }
         });
+        const rbush = new rbush_1.default().insert({
+            minX: this.player.x - this.view.width / 2,
+            maxX: this.player.x + this.view.width / 2,
+            minY: this.player.y - this.view.height / 2,
+            maxY: this.player.y + this.view.height / 2
+        });
+        const bullets = Array.from(this.bullets.values());
+        bullets.forEach(item => {
+            if (item.active && !rbush.collides(item.bbox)) {
+                item.active = false;
+            }
+        });
         const entities = [
             ...this.players,
             ...Array.from(this.enemies.values()),
-            ...Array.from(this.meteors.values())
+            ...Array.from(this.meteors.values()),
         ];
-        // bullet collision
-        this.bullets.forEach(bullet => {
-            if (!bullet.active)
-                return;
-            entities.forEach(hit => {
-                if (!hit.isAlive
-                    || hit.id === bullet.id
-                    || !hit.collides(bullet))
-                    return; // self hit
-                bullet.active = false;
+        entities.forEach(item => item.active = rbush.collides(item.bbox));
+        rbush.clear();
+        // collision with bullet
+        entities.filter(entity => {
+            return entity.active && entity.isAlive;
+        })
+            .forEach(entity => {
+            let hits = bullets.filter(bullet => {
+                return bullet.active && entity.id !== bullet.id && entity.collides(bullet);
+            });
+            hits.forEach(bullet => {
+                if (!bullet.active)
+                    return; // x2 check
                 // apply damage
-                if (!hit.isAlive)
-                    return;
                 if (bullet.id === this.player.id) { // shot by player 
-                    hit.applyDamage(bullet.power);
-                    if (!hit.isAlive) {
-                        const reward = hit.getReward();
+                    entity.applyDamage(bullet.power);
+                    if (!entity.isAlive) {
+                        const reward = entity.getReward();
                         // spawn item
                         for (let field in reward) {
                             if (field === 'score') {
@@ -209,17 +226,18 @@ class Shooter extends schema_1.Schema {
                             }
                             else {
                                 const value = reward[field];
-                                this.items.push(new entities_1.Item(utils_1.Utils.randomId(), hit.x, hit.y, 30, field, value, this.player));
+                                this.items.push(new entities_1.Item(utils_1.Utils.randomId(), entity.x, entity.y, utils_1.Constants.ITEM_SIZE / 2, field, value, this.player));
                             }
                         }
                     }
                 }
-                else if (hit.id === this.player.id) { // shot from enemy -> check only if hit player
+                else if (entity.id === this.player.id) { // shot from enemy -> check only if hit player
                     this.player.applyDamage(bullet.power);
                     if (!this.player.isAlive) {
                         this.endExplore();
                     }
                 }
+                bullet.active = false;
             });
         });
         // correct position
@@ -253,20 +271,7 @@ class Shooter extends schema_1.Schema {
         const bullet = this.bullets[index];
         if (!bullet || !bullet.active)
             return;
-        // bullet out of view
-        const rbush = new rbush_1.default().insert({
-            minX: this.player.x - this.view.width / 2,
-            maxX: this.player.x + this.view.width / 2,
-            minY: this.player.y - this.view.height / 2,
-            maxY: this.player.y + this.view.height / 2
-        });
-        if (rbush.collides(bullet.bbox)) {
-            bullet.move();
-        }
-        else { // out of camera view -> deactive
-            bullet.active = false;
-        }
-        rbush.clear();
+        bullet.move();
     }
     playerDistanceTo(other) {
         return other.position.sub(this.player.position).mag();

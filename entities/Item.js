@@ -26,7 +26,7 @@ class Item extends _1.Entity {
         this.angle = (this.angle + 1.6) % 360; // rotate speed ~ 5*(dt: 10000/60FPS) 
         if (!this.following && Date.now() - this.time >= 2000) {
             this.following = true;
-            this.moveSpeed = 16; // 
+            this.moveSpeed = utils_1.Constants.ITEM_SPEED; // 
         }
         if (this.following) { // update movement direction
             const { x, y } = this.target.position.sub(this.position);

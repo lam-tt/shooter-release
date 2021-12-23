@@ -45,6 +45,8 @@ class Entity extends schema_1.Schema {
         };
     }
     collides(other) {
+        if (!this.active || !other.active)
+            return false;
         let dx = other.x - this.x;
         let dy = other.y - this.y;
         const dist = Math.sqrt(dx * dx + dy * dy);

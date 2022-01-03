@@ -6,6 +6,7 @@ const Shooter_1 = require("./schema/Shooter");
 class ShooterRoom extends colyseus_1.Room {
     onCreate(options) {
         var _a;
+        this.clock.start();
         this.maxClients = (_a = options.roomMaxPlayer) !== null && _a !== void 0 ? _a : 1;
         const { roomName, view } = options;
         this.setState(new Shooter_1.Shooter(roomName, view, msg => {
@@ -84,13 +85,10 @@ class ShooterRoom extends colyseus_1.Room {
     }
     onDispose() {
         console.log("room", this.roomId, "disposing...");
+        this.clock.stop();
     }
     onUpdate() {
-        // ping 
-        this.broadcast('ping', {
-            type: 'ping',
-            time: Date.now()
-        });
+        console.log(this.clock.currentTime, Date.now());
         this.state.update();
     }
 }

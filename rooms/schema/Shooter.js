@@ -203,6 +203,7 @@ class Shooter extends schema_1.Schema {
                         id
                     }
                 });
+                console.log('enemy fire - server time:', time);
                 enemy.fire(bullets, time);
             }
         };

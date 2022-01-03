@@ -24,6 +24,7 @@ class Bullet extends _1.Entity {
         this.x += Math.cos(rad) * this.speed;
         this.y += Math.sin(rad) * this.speed;
     }
+    // !!! adjust (x,y) base on diff between server and client
     onActive(data) {
         var _a, _b;
         this.active = true;

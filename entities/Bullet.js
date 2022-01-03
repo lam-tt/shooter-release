@@ -13,7 +13,11 @@ const utils_1 = require("../utils");
 class Bullet extends _1.Entity {
     constructor() {
         super();
+        this.id = utils_1.Utils.bulletId();
         this.type = utils_1.Types.Entity.Bullet;
+    }
+    update() {
+        this.move();
     }
     move() {
         let rad = utils_1.Utils.deg2Rad(this.angle);
@@ -21,9 +25,9 @@ class Bullet extends _1.Entity {
         this.y += Math.sin(rad) * this.speed;
     }
     onActive(data) {
-        var _a;
+        var _a, _b;
         this.active = true;
-        this.id = data.owner;
+        this.owner = data.owner;
         this.x = data.x;
         this.y = data.y;
         this.radius = data.radius;
@@ -33,6 +37,7 @@ class Bullet extends _1.Entity {
         this.element = data.element;
         this.side = data.side;
         this.speed = (_a = data.speed) !== null && _a !== void 0 ? _a : utils_1.Constants.BULLET_SPEED;
+        this.behavior = (_b = data.behavior) !== null && _b !== void 0 ? _b : utils_1.Types.BulletType.Normal;
     }
 }
 __decorate([
@@ -41,4 +46,7 @@ __decorate([
 __decorate([
     schema_1.type('number')
 ], Bullet.prototype, "side", void 0);
+__decorate([
+    schema_1.type('number')
+], Bullet.prototype, "behavior", void 0);
 exports.Bullet = Bullet;

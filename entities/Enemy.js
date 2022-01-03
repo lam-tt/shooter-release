@@ -14,9 +14,12 @@ class Enemy extends _1.Entity {
     constructor(id, x, y, r, baseHp) {
         super(id, x, y, r, baseHp);
         this.state = 'idle';
-        this.stateDur = 0;
-        this.lastAct = 0;
+        this.stateDuration = 0;
+        this.lastAction = 0;
         this.target = null;
+        this.setData = (data) => {
+            this.gunSpot = Array.from(data).map((item) => new utils_1.Vec2(item.x, item.y));
+        };
         this.rarity = utils_1.Utils.randomRarity();
         this.attack = utils_1.Utils.randomRange(1, 1.5);
         this.type = utils_1.Types.Entity.Enemy;
@@ -27,23 +30,23 @@ class Enemy extends _1.Entity {
     // state idle
     startIdle() {
         this.state = 'idle';
-        this.lastAct = Date.now();
-        this.stateDur = utils_1.Utils.randomInt(500, 1000); // ms
+        this.lastAction = Date.now();
+        this.stateDuration = utils_1.Utils.randomInt(500, 1000); // ms
     }
     updateIdle() {
         if (this.canAttack) {
             this.startAttack();
             return;
         }
-        if (Date.now() - this.lastAct > this.stateDur) {
+        if (this.stateExpired) {
             this.startPatrol();
         }
     }
     // state patrol
     startPatrol() {
         this.state = 'patrol';
-        this.lastAct = Date.now();
-        this.stateDur = utils_1.Utils.randomRange(3500, 6500); // ms
+        this.lastAction = Date.now();
+        this.stateDuration = utils_1.Utils.randomRange(3500, 6500); // ms
         const angle = this.angle + (Math.random() * 60 - 30);
         this.moveDir = utils_1.Vec2.fromAngle(angle);
     }
@@ -52,7 +55,7 @@ class Enemy extends _1.Entity {
             this.startAttack();
             return;
         }
-        if (Date.now() - this.lastAct > this.stateDur) {
+        if (this.stateExpired) {
             this.startIdle();
             return;
         }
@@ -66,7 +69,7 @@ class Enemy extends _1.Entity {
     // state attack
     startAttack() {
         this.state = 'attack';
-        this.lastAct = Date.now();
+        this.lastAction = Date.now();
     }
     updateAttack() {
         if (!this.targetInSight) {
@@ -81,24 +84,22 @@ class Enemy extends _1.Entity {
         this.y += Math.sin(rad) * utils_1.Constants.ENEMY_SPEED;
     }
     fire(bullet, time) {
-        this.lastAct = time;
-        for (let side = utils_1.Types.GunSide.Left; side < utils_1.Types.GunSide.Count; side++) {
-            let i = side == utils_1.Types.GunSide.Left ? -1 : 1;
-            const v2 = new utils_1.Vec2(29 * i, 90); // [29, 90] fire spot offset from client
-            const size = v2.mag();
-            const rad = utils_1.Utils.deg2Rad(this.angle) + Math.atan2(v2.x, v2.y);
-            bullet.onActive({
+        var _a;
+        this.lastAction = time;
+        (_a = this.gunSpot) === null || _a === void 0 ? void 0 : _a.forEach((spot, side) => {
+            const offset = spot.rotate(utils_1.Utils.deg2Rad(this.angle - 90));
+            bullet[side].onActive({
                 owner: this.id,
-                x: this.x + Math.cos(rad) * size,
-                y: this.y + Math.sin(rad) * size,
+                x: this.x + offset.x,
+                y: this.y + offset.y,
                 radius: utils_1.Constants.BULLET_SIZE / 2,
                 power: this.attack,
                 element: this.element,
                 angle: this.angle,
-                firedAt: this.lastAct,
+                firedAt: this.lastAction,
                 side
             });
-        }
+        });
     }
     rotateTo(dir) {
         let speed = 3; // = dt * 180
@@ -108,7 +109,7 @@ class Enemy extends _1.Entity {
             this.angle = utils_1.Utils.angleDeg(dir);
         }
         else {
-            this.angle += (diff / Math.abs(diff)) * speed;
+            this.angle += diff / Math.abs(diff) * speed;
         }
     }
     update() {
@@ -136,25 +137,30 @@ class Enemy extends _1.Entity {
         reward[key] = item[key];
         switch (this.rarity) {
             case 0:
-                reward.score = 3;
+                {
+                    reward.score = 3;
+                }
                 break;
             case 1:
-                reward.fuel = 0.03;
-                reward.score = 5;
+                {
+                    reward.fuel = 0.03;
+                    reward.score = 5;
+                }
                 break;
             case 2:
-                reward.fuel = 0.03;
-                reward.score = 10;
+                {
+                    reward.fuel = 0.03;
+                    reward.score = 10;
+                }
                 break;
             case 3:
-                reward.fuel = 0.03;
-                reward.score = 20;
+                {
+                    reward.fuel = 0.03;
+                    reward.score = 20;
+                }
                 break;
         }
         return reward;
-    }
-    get isAlive() {
-        return this.curHp > 0;
     }
     get targetDir() {
         return this.target.position.sub(this.position);
@@ -166,8 +172,10 @@ class Enemy extends _1.Entity {
         return this.targetDir.mag() <= utils_1.Constants.ENEMY_ATTACK_RANGE; // enemy.atkRange
     }
     get shouldFire() {
-        return this.state === 'attack'
-            && Date.now() - this.lastAct > utils_1.Constants.ENEMY_ATK_RATE;
+        return this.state === 'attack' && Date.now() - this.lastAction > utils_1.Constants.ENEMY_ATK_RATE;
+    }
+    get stateExpired() {
+        return Date.now() - this.lastAction > this.stateDuration;
     }
 }
 __decorate([

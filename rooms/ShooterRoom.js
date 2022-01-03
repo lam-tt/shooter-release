@@ -23,11 +23,6 @@ class ShooterRoom extends colyseus_1.Room {
             const playerId = client.sessionId;
             switch (type) {
                 // shooter state
-                case 'ship-status':
-                    {
-                        this.status = message.data;
-                    }
-                    break;
                 case 'query-ships':
                     {
                         const status = this.status; // available ship_id from backend
@@ -41,24 +36,28 @@ class ShooterRoom extends colyseus_1.Room {
                 case 'ship-selected':
                     {
                         this.state.initPlayer(playerId, message.data);
-                        this.state.startExplore();
+                    }
+                    break;
+                case 'player-ready':
+                    {
+                        this.state.onGameReady();
                     }
                     break;
                 case 'game-pause':
                     {
-                        console.log('game-paused -> TBU');
+                        this.state.onGamePause(message.data);
                     }
                     break;
                 case 'game-end':
                     {
                         console.log('game-end');
-                        this.state.endExplore();
+                        this.state.startStateEnd();
                     }
                     break;
                 case 'game-restart':
                     {
                         console.log('game-restart');
-                        this.state.selectShip();
+                        this.state.startStateSelect();
                     }
                     break;
                 // player action
@@ -67,6 +66,12 @@ class ShooterRoom extends colyseus_1.Room {
                 case 'rotate':
                     {
                         this.state.pushPlayerAction(Object.assign({ playerId }, message));
+                    }
+                    break;
+                // other info
+                case 'gun-spot-data':
+                    {
+                        this.state.setData(message.data);
                     }
                     break;
             }

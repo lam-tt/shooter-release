@@ -1,13 +1,14 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.GunSide = exports.PlayerState = exports.GameState = exports.Entity = void 0;
+exports.BulletType = exports.PlayerState = exports.GameState = exports.Entity = void 0;
 var Entity;
 (function (Entity) {
-    Entity[Entity["Enemy"] = 0] = "Enemy";
-    Entity[Entity["Meteor"] = 1] = "Meteor";
-    Entity[Entity["Bullet"] = 2] = "Bullet";
+    Entity[Entity["Meteor"] = 0] = "Meteor";
+    Entity[Entity["Enemy"] = 1] = "Enemy";
+    Entity[Entity["Boss"] = 2] = "Boss";
     Entity[Entity["Player"] = 3] = "Player";
-    Entity[Entity["Item"] = 4] = "Item";
+    Entity[Entity["Bullet"] = 4] = "Bullet";
+    Entity[Entity["Item"] = 5] = "Item";
 })(Entity = exports.Entity || (exports.Entity = {}));
 var GameState;
 (function (GameState) {
@@ -21,11 +22,14 @@ var PlayerState;
 (function (PlayerState) {
     PlayerState[PlayerState["Prepare"] = 0] = "Prepare";
     PlayerState[PlayerState["Ready"] = 1] = "Ready";
-    PlayerState[PlayerState["Death"] = 2] = "Death";
+    PlayerState[PlayerState["Wait"] = 2] = "Wait";
+    PlayerState[PlayerState["Death"] = 3] = "Death";
 })(PlayerState = exports.PlayerState || (exports.PlayerState = {}));
-var GunSide;
-(function (GunSide) {
-    GunSide[GunSide["Left"] = 0] = "Left";
-    GunSide[GunSide["Right"] = 1] = "Right";
-    GunSide[GunSide["Count"] = 2] = "Count";
-})(GunSide = exports.GunSide || (exports.GunSide = {}));
+var BulletType;
+(function (BulletType) {
+    BulletType[BulletType["DoT"] = 0] = "DoT";
+    BulletType[BulletType["Split"] = 1] = "Split";
+    BulletType[BulletType["Chase"] = 2] = "Chase";
+    BulletType[BulletType["Explode"] = 3] = "Explode";
+    BulletType[BulletType["Normal"] = 4] = "Normal";
+})(BulletType = exports.BulletType || (exports.BulletType = {}));

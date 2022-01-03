@@ -13,23 +13,30 @@ const utils_1 = require("../utils");
 class Player extends _1.Entity {
     constructor(id, x, y, r, shipId, element, baseHp, baseFuel) {
         super(id, x, y, r, baseHp);
+        this.setData = (spot) => {
+            this.gunSpot = Array.from(spot).map((item) => new utils_1.Vec2(item.x, item.y));
+        };
         this.element = element;
         this.shipId = shipId;
+        this.angle = 90;
         this.curFuel = this.baseFuel = baseFuel;
         this.fuel = 1;
         this.attack = 1;
         this.lastFired = 0;
         this.type = utils_1.Types.Entity.Player;
+        this.state = utils_1.Types.PlayerState.Prepare;
         this.buff = {};
     }
     update() {
-        // remove timeout buff
+        this.refreshBuff();
+    }
+    refreshBuff() {
         for (let field in this.buff) {
-            if (typeof (this.buff[field]) === 'object') {
-                const { start, duration } = this.buff[field];
-                if (Date.now() - start >= duration * 1000) { // duration in ms
-                    delete this.buff[field];
-                }
+            const { start, duration } = this.buff[field];
+            if (!start || !duration)
+                continue;
+            if (Date.now() - start >= duration * 1000) { // duration in ms
+                delete this.buff[field];
             }
         }
     }
@@ -45,22 +52,31 @@ class Player extends _1.Entity {
         this.x += dx;
         this.y += dy;
     }
+    clampPos(view) {
+        const { minX, maxX, minY, maxY } = view.bbox;
+        if (this.x < minX + this.radius)
+            this.x = minX + this.radius;
+        else if (this.x > maxX - this.radius)
+            this.x = maxX - this.radius;
+        if (this.y < minY + this.radius)
+            this.y = minY + this.radius;
+        else if (this.y > maxY - this.radius)
+            this.y = maxY - this.radius;
+    }
     rotate(data) {
         this.angle = data.angle;
     }
     fire(bullet, firedAt, angle) {
-        var _a, _b;
-        for (let side = utils_1.Types.GunSide.Left; side < utils_1.Types.GunSide.Count; side++) {
-            let i = side == utils_1.Types.GunSide.Left ? -1 : 1;
-            const v2 = new utils_1.Vec2(i * 29, 90); // [29, 90] fire spot offset from client
-            const size = v2.mag();
-            const rad = utils_1.Utils.deg2Rad(angle) + Math.atan2(v2.x, v2.y);
+        var _a;
+        (_a = this.gunSpot) === null || _a === void 0 ? void 0 : _a.forEach((spot, side) => {
+            var _a, _b;
+            const offset = spot.rotate(utils_1.Utils.deg2Rad(this.angle - 90));
             const { power, rate } = this.buff;
             this.lastFired = firedAt;
-            bullet.onActive({
+            bullet[side].onActive({
                 owner: this.id,
-                x: this.x + Math.cos(rad) * size,
-                y: this.y + Math.sin(rad) * size,
+                x: this.x + offset.x,
+                y: this.y + offset.y,
                 radius: utils_1.Constants.BULLET_SIZE / 2,
                 power: this.attack * ((_a = power === null || power === void 0 ? void 0 : power.value) !== null && _a !== void 0 ? _a : 1),
                 speed: utils_1.Constants.BULLET_SPEED * ((_b = rate === null || rate === void 0 ? void 0 : rate.value) !== null && _b !== void 0 ? _b : 1),
@@ -69,7 +85,7 @@ class Player extends _1.Entity {
                 firedAt,
                 side
             });
-        }
+        });
     }
     onRewardCollect(field, value) {
         if (field === 'fuel') {
@@ -88,7 +104,7 @@ class Player extends _1.Entity {
         }
     }
     canFireAt(time) {
-        return (time - this.lastFired > utils_1.Constants.PLAYER_ATK_RATE);
+        return time - this.lastFired > utils_1.Constants.PLAYER_ATK_RATE;
     }
 }
 __decorate([
@@ -100,4 +116,7 @@ __decorate([
 __decorate([
     schema_1.type('number')
 ], Player.prototype, "ack", void 0);
+__decorate([
+    schema_1.type('number')
+], Player.prototype, "state", void 0);
 exports.Player = Player;

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getCollisionInfo = exports.getContactSide = exports.clampf = exports.angleDeg = exports.toFixed = exports.randomId = exports.deg2Rad = exports.randomRarity = exports.randomPosition = exports.randomRange = exports.randomInt = void 0;
+exports.bulletId = exports.getCollisionInfo = exports.getContactSide = exports.clampf = exports.angleDeg = exports.toFixed = exports.randomId = exports.deg2Rad = exports.randomRarity = exports.randomPosition = exports.randomRange = exports.randomInt = void 0;
 const nanoid_1 = require("nanoid");
 const _1 = require(".");
 function randomInt(a, b) {
@@ -88,3 +88,10 @@ function getCollisionInfo(self, other) {
     };
 }
 exports.getCollisionInfo = getCollisionInfo;
+const generator = function* () {
+    let n = 0;
+    while (true)
+        yield n++;
+};
+const gen = generator();
+exports.bulletId = () => gen.next().value.toString();

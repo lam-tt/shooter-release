@@ -16,7 +16,7 @@ class Entity extends schema_1.Schema {
         this.x = x;
         this.y = y;
         this.radius = r;
-        this.angle = 0;
+        this.angle = utils_1.Utils.randomInt(0, 360);
         this.curHp = this.baseHp = baseHp;
         this.health = 1;
         this.element = utils_1.Utils.randomInt(0, 4);
@@ -30,6 +30,9 @@ class Entity extends schema_1.Schema {
         this.health = utils_1.Utils.toFixed(percent, 2);
     }
     getReward() { }
+    setActive(val) {
+        this.active = val;
+    }
     get isAlive() {
         return this.curHp > 0;
     }

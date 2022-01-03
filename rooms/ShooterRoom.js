@@ -15,7 +15,6 @@ class ShooterRoom extends colyseus_1.Room {
             roomName,
             roomMaxPlayer: this.maxClients
         });
-        //this.setPatchRate(25);
         this.setSimulationInterval(() => {
             this.onUpdate();
         });
@@ -87,6 +86,11 @@ class ShooterRoom extends colyseus_1.Room {
         console.log("room", this.roomId, "disposing...");
     }
     onUpdate() {
+        // ping 
+        this.broadcast('ping', {
+            type: 'ping',
+            time: Date.now()
+        });
         this.state.update();
     }
 }

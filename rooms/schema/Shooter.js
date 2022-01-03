@@ -286,8 +286,14 @@ class Shooter extends schema_1.Schema {
             switch (action.type) {
                 case 'move':
                     {
-                        this.player.move(action.data, utils_1.Constants.PLAYER_SPEED); // player.speed
-                        this.player.ack = action.time;
+                        const { moveDir, angle } = action.data;
+                        if (moveDir) {
+                            this.player.move(moveDir, utils_1.Constants.PLAYER_SPEED); // player.speed
+                            this.player.ack = action.time;
+                        }
+                        if (angle) {
+                            this.player.rotate(angle);
+                        }
                     }
                     break;
                 case 'rotate':

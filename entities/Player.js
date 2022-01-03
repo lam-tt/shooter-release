@@ -40,15 +40,14 @@ class Player extends _1.Entity {
             }
         }
     }
-    move(data, speed) {
+    move(dir, speed) {
         var _a, _b;
-        let { x, y } = data.dir;
-        if (x === 0 && y === 0)
+        if (dir.x === 0 && dir.y === 0)
             return;
         let bonus = (_b = (_a = this.buff.speed) === null || _a === void 0 ? void 0 : _a.value) !== null && _b !== void 0 ? _b : 1;
-        let mag = Math.sqrt(x * x + y * y);
-        let dx = Math.round(x * speed * bonus / mag);
-        let dy = Math.round(y * speed * bonus / mag);
+        let mag = Math.sqrt(dir.x * dir.x + dir.y * dir.y);
+        let dx = Math.round(dir.x * speed * bonus / mag);
+        let dy = Math.round(dir.y * speed * bonus / mag);
         this.x += dx;
         this.y += dy;
     }
@@ -63,8 +62,8 @@ class Player extends _1.Entity {
         else if (this.y > maxY - this.radius)
             this.y = maxY - this.radius;
     }
-    rotate(data) {
-        this.angle = data.angle;
+    rotate(angle) {
+        this.angle = angle;
     }
     fire(bullet, firedAt, angle) {
         var _a;

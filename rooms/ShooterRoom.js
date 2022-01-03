@@ -15,7 +15,7 @@ class ShooterRoom extends colyseus_1.Room {
             roomName,
             roomMaxPlayer: this.maxClients
         });
-        this.setPatchRate(25);
+        //this.setPatchRate(25);
         this.setSimulationInterval(() => {
             this.onUpdate();
         });

@@ -15,7 +15,6 @@ class Boss extends _1.Entity {
         super(utils_1.Utils.randomId());
         this.setData = (spot) => {
             this.gunSpot = Array.from(spot).map((item) => new utils_1.Vec2(item.x, item.y));
-            console.log(this.gunSpot);
         };
         this.type = utils_1.Types.Entity.Boss;
         this.radius = utils_1.Constants.BOSS_SIZE / 2;

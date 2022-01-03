@@ -88,7 +88,10 @@ class ShooterRoom extends colyseus_1.Room {
         this.clock.stop();
     }
     onUpdate() {
-        console.log(this.clock.currentTime, Date.now());
+        this.broadcast('ping', {
+            type: 'ping',
+            time: this.clock.currentTime
+        });
         this.state.update();
     }
 }

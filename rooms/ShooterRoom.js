@@ -58,9 +58,7 @@ class ShooterRoom extends colyseus_1.Room {
                     }
                     break;
                 // player action
-                case 'move':
-                case 'fire':
-                case 'rotate':
+                case 'action':
                     {
                         this.state.pushPlayerAction(Object.assign({ playerId }, message));
                     }

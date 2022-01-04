@@ -283,33 +283,19 @@ class Shooter extends schema_1.Schema {
         let action;
         while (this.playerActions.length > 0) {
             action = this.playerActions.shift();
-            switch (action.type) {
-                case 'move':
-                    {
-                        const { moveDir, angle } = action.data;
-                        if (moveDir) {
-                            this.player.move(moveDir, utils_1.Constants.PLAYER_SPEED); // player.speed
-                            this.player.ack = action.time;
-                        }
-                        if (angle) {
-                            this.player.rotate(angle);
-                        }
-                    }
-                    break;
-                case 'rotate':
-                    {
-                        this.player.rotate(action.data);
-                    }
-                    break;
-                case 'fire':
-                    {
-                        const { time, data } = action;
-                        if (this.player.canFireAt(time)) {
-                            const bullet = this.getBullets(2);
-                            this.player.fire(bullet, time, data.angle);
-                        }
-                    }
-                    break;
+            const { move, rotate, fire } = action.data;
+            if (move) {
+                this.player.move(move.moveDir, utils_1.Constants.PLAYER_SPEED); // player.speed
+                this.player.ack = action.time;
+            }
+            if (rotate) {
+                this.player.rotate(rotate.angle);
+            }
+            if (fire) {
+                if (this.player.canFireAt(fire.firedAt)) {
+                    const bullet = this.getBullets(2);
+                    this.player.fire(bullet, fire.firedAt, fire.angle);
+                }
             }
         }
         this.player.clampPos(this.view);
